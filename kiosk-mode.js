@@ -1,7 +1,7 @@
 class KioskMode {
   constructor() {
     window.kioskModeEntities = {};
-    if (this.queryString("clear_km_cache")) this.setCache(["kmHeader", "kmSidebar", "kmOverflow", "kmMenuButton"], "false");
+    if (this.queryString("clear_km_cache")) this.setCache(["kmHeader", "kmSidebar", "kmOverflow", "kmMenuButton", "kmSearchButton"], "false");
     this.ha = document.querySelector("home-assistant");
     this.main = this.ha.shadowRoot.querySelector("home-assistant-main").shadowRoot;
     this.user = this.ha.hass.user;
@@ -42,12 +42,13 @@ class KioskMode {
 
     // Retrieve localStorage values & query string options.
     const queryStringsSet =
-      this.cached(["kmHeader", "kmSidebar", "kmOverflow", "kmMenuButton"]) || this.queryString(["kiosk", "hide_sidebar", "hide_header", "hide_overflow", "hide_menubutton"]);
+      this.cached(["kmHeader", "kmSidebar", "kmOverflow", "kmMenuButton", "kmSearchButton"]) || this.queryString(["kiosk", "hide_sidebar", "hide_header", "hide_overflow", "hide_menubutton", "hide_searchbutton"]);
     if (queryStringsSet) {
       this.hideHeader = this.cached("kmHeader") || this.queryString(["kiosk", "hide_header"]);
       this.hideSidebar = this.cached("kmSidebar") || this.queryString(["kiosk", "hide_sidebar"]);
       this.hideOverflow = this.cached("kmOverflow") || this.queryString(["kiosk", "hide_overflow"]);
       this.hideMenuButton = this.cached("kmMenuButton") || this.queryString(["kiosk", "hide_menubutton"]);
+      this.hideSearchButton = this.cached("kmSearchButton") || this.queryString(["kiosk", "hide_searchbutton"]);
     }
 
     // Use config values only if config strings and cache aren't used.
@@ -55,6 +56,7 @@ class KioskMode {
     this.hideSidebar = queryStringsSet ? this.hideSidebar : config.kiosk || config.hide_sidebar;
     this.hideOverflow = queryStringsSet ? this.hideOverflow : config.kiosk || config.hide_overflow;
     this.hideMenuButton = queryStringsSet ? this.hideMenuButton : config.kiosk || config.hide_menubutton;
+    this.hideSearchButton = queryStringsSet ? this.hideSearchButton : config.kiosk || config.hide_searchbutton;
 
     const adminConfig = this.user.is_admin ? config.admin_settings : config.non_admin_settings;
     if (adminConfig) this.setOptions(adminConfig);
@@ -81,6 +83,7 @@ class KioskMode {
           if ("hide_sidebar" in conf) this.hideSidebar = conf.hide_sidebar;
           if ("hide_overflow" in conf) this.hideOverflow = conf.hide_overflow;
           if ("hide_menubutton" in conf) this.hideMenuButton = conf.hide_menubutton;
+          if ("hide_searchbutton" in conf) this.hideSearchButton = conf.hide_searchbutton;
           if ("kiosk" in conf) this.hideHeader = this.hideSidebar = conf.kiosk;
         }
       }
@@ -108,15 +111,16 @@ class KioskMode {
 
     if (this.hideSidebar) {
       this.addStyle(":host{--app-drawer-width:0 !important;}#drawer{display:none;}", drawerLayout);
-      this.addStyle("ha-menu-button{display:none !important;}", appToolbar);
+      this.addStyle("ha-menu-button{display:none !important;}" + `${this.hideSearchButton ? "ha-icon-button{display:none !important;}" : ""}`, appToolbar);
       if (this.queryString("cache")) this.setCache("kmSidebar", "true");
     } else {
       this.removeStyle([appToolbar, drawerLayout]);
     }
 
-    if (this.hideMenuButton) {
-      this.addStyle("ha-menu-button{display:none !important;}", appToolbar);
-      if (this.queryString("cache")) this.setCache("kmMenuButton", "true");
+    if (this.hideMenuButton || this.hideSearchButton) {
+      this.addStyle(`${this.hideMenuButton ? "ha-menu-button{display:none !important;}" : ""}${this.hideSearchButton ? "ha-icon-button{display:none !important;}" : ""}`, appToolbar);
+      if (this.queryString("cache") && this.hideMenuButton) this.setCache("kmMenuButton", "true");
+      if (this.queryString("cache") && this.hideSearchButton) this.setCache("kmSearchButton", "true");
     } else {
       this.removeStyle(appToolbar);
     }
@@ -159,6 +163,7 @@ class KioskMode {
     this.hideSidebar = config.kiosk || config.hide_sidebar;
     this.hideOverflow = config.kiosk || config.hide_overflow;
     this.hideMenuButton = config.kiosk || config.hide_menubutton;
+    this.hideSearchButton = config.kiosk || config.hide_searchbutton;
     this.ignoreEntity = config.ignore_entity_settings;
     this.ignoreMobile = config.ignore_mobile_settings;
   }
