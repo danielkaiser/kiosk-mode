@@ -1,7 +1,7 @@
 class KioskMode {
   constructor() {
     window.kioskModeEntities = {};
-    if (this.queryString("clear_km_cache")) this.setCache(["kmHeader", "kmSidebar", "kmOverflow", "kmMenuButton", "kmSearchButton"], "false");
+    if (this.queryString("clear_km_cache")) this.setCache(["kmHeader", "kmSidebar", "kmOverflow", "kmMenuButton", "kmSearchButton", "kmAddClock"], "false");
     this.ha = document.querySelector("home-assistant");
     this.main = this.ha.shadowRoot.querySelector("home-assistant-main").shadowRoot;
     this.user = this.ha.hass.user;
@@ -42,13 +42,14 @@ class KioskMode {
 
     // Retrieve localStorage values & query string options.
     const queryStringsSet =
-      this.cached(["kmHeader", "kmSidebar", "kmOverflow", "kmMenuButton", "kmSearchButton"]) || this.queryString(["kiosk", "hide_sidebar", "hide_header", "hide_overflow", "hide_menubutton", "hide_searchbutton"]);
+      this.cached(["kmHeader", "kmSidebar", "kmOverflow", "kmMenuButton", "kmSearchButton", "kmAddClock"]) || this.queryString(["kiosk", "hide_sidebar", "hide_header", "hide_overflow", "hide_menubutton", "hide_searchbutton", "add_clock"]);
     if (queryStringsSet) {
       this.hideHeader = this.cached("kmHeader") || this.queryString(["kiosk", "hide_header"]);
       this.hideSidebar = this.cached("kmSidebar") || this.queryString(["kiosk", "hide_sidebar"]);
       this.hideOverflow = this.cached("kmOverflow") || this.queryString(["kiosk", "hide_overflow"]);
       this.hideMenuButton = this.cached("kmMenuButton") || this.queryString(["kiosk", "hide_menubutton"]);
       this.hideSearchButton = this.cached("kmSearchButton") || this.queryString(["kiosk", "hide_searchbutton"]);
+      this.addClock = this.cached("kmAddClock") || this.queryString(["kiosk", "add_clock"]);
     }
 
     // Use config values only if config strings and cache aren't used.
@@ -57,6 +58,7 @@ class KioskMode {
     this.hideOverflow = queryStringsSet ? this.hideOverflow : config.kiosk || config.hide_overflow;
     this.hideMenuButton = queryStringsSet ? this.hideMenuButton : config.kiosk || config.hide_menubutton;
     this.hideSearchButton = queryStringsSet ? this.hideSearchButton : config.kiosk || config.hide_searchbutton;
+    this.addClock = queryStringsSet ? this.addClock : config.kiosk || config.add_clock;
 
     const adminConfig = this.user.is_admin ? config.admin_settings : config.non_admin_settings;
     if (adminConfig) this.setOptions(adminConfig);
@@ -84,6 +86,7 @@ class KioskMode {
           if ("hide_overflow" in conf) this.hideOverflow = conf.hide_overflow;
           if ("hide_menubutton" in conf) this.hideMenuButton = conf.hide_menubutton;
           if ("hide_searchbutton" in conf) this.hideSearchButton = conf.hide_searchbutton;
+          if ("add_clock" in conf) this.addClock = conf.add_clock;
           if ("kiosk" in conf) this.hideHeader = this.hideSidebar = conf.kiosk;
         }
       }
@@ -121,6 +124,13 @@ class KioskMode {
       this.addStyle(`${this.hideMenuButton ? "ha-menu-button{display:none !important;}" : ""}${this.hideSearchButton ? "ha-icon-button{display:none !important;}" : ""}`, appToolbar);
       if (this.queryString("cache") && this.hideMenuButton) this.setCache("kmMenuButton", "true");
       if (this.queryString("cache") && this.hideSearchButton) this.setCache("kmSearchButton", "true");
+    } else {
+      this.removeStyle(appToolbar);
+    }
+
+    if (this.addClock) {
+      this.addClockSpan(appToolbar);
+      if (this.queryString("cache") && this.addClock) this.setCache("kmAddClock", "true");
     } else {
       this.removeStyle(appToolbar);
     }
@@ -164,6 +174,7 @@ class KioskMode {
     this.hideOverflow = config.kiosk || config.hide_overflow;
     this.hideMenuButton = config.kiosk || config.hide_menubutton;
     this.hideSearchButton = config.kiosk || config.hide_searchbutton;
+    this.addClock = config.kiosk || config.add_clock;
     this.ignoreEntity = config.ignore_entity_settings;
     this.ignoreMobile = config.ignore_mobile_settings;
   }
@@ -199,6 +210,20 @@ class KioskMode {
       style.innerHTML = css;
       elem.appendChild(style);
     }
+  }
+
+  updateTime(elem) {
+    const time = new Date()
+    const minutes = time.getMinutes() < 10 ? "0" + time.getMinutes() : time.getMinutes();
+    const hours = time.getHours() < 10 ? "0" + time.getHours() : time.getHours();
+    elem.innerText = hours + ":" + minutes
+    setTimeout(this.updateTime.bind(this, elem), 60 - time.getSeconds())
+  }
+
+  addClockSpan(elem) {
+    const timeSpan = document.createElement("span");
+    elem.appendChild(timeSpan);
+    this.updateTime(timeSpan);
   }
 
   removeStyle(elements) {
