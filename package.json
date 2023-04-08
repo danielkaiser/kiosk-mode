@@ -1,0 +1,19 @@
+{
+  "name": "kiosk-mode",
+  "version": "1.7.9",
+  "description": "Hides the Home Assistant header and/or sidebar",
+  "main": "kiosk-mode.js",
+  "repository": "git@github.com:NemesisRE/kiosk-mode.git",
+  "author": "Steven \"NemesisRE\" Koeberich <nemesissre@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "rollup --config rollup.config.js --bundleConfigAsCjs"
+  },
+  "devDependencies": {
+    "@rollup/plugin-json": "^6.0.0",
+    "rollup": "^3.19.1",
+    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-ts": "^3.2.0",
+    "typescript": "^4.9.5"
+  }
+}
