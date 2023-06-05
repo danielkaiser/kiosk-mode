@@ -38,6 +38,7 @@ export interface KioskConfig {
     hide_reload_resources?: boolean;
     hide_edit_dashboard?: boolean;
     add_clock?: boolean;
+    auto_hide_overflow?: boolean;
     block_mouse?: boolean;
     admin_settings?: ConditionalKioskConfig;
     non_admin_settings?: ConditionalKioskConfig;
@@ -49,6 +50,7 @@ export interface KioskConfig {
 export interface ConditionalKioskConfig extends KioskConfig {
     ignore_entity_settings?: boolean;
     ignore_mobile_settings?: boolean;
+    ignore_disable_km?: boolean;
 }
 
 export interface EntityState {

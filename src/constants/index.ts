@@ -1,3 +1,4 @@
+export const NAMESPACE = 'kiosk-mode';
 export const STYLES_PREFIX = 'kiosk_mode';
 
 export enum CACHE {
@@ -13,6 +14,7 @@ export enum CACHE {
     RELOAD_RESOURCES = 'kmReloadResources',
     EDIT_DASHBOARD = 'kmEditDashboard',
     ADD_CLOCK = 'kmAddClock',
+    AUTO_HIDE_OVERFLOW = 'kmAutoHideOverflow',
     MOUSE = 'kmMouse'
 }
 
@@ -33,6 +35,7 @@ export enum OPTION {
     HIDE_RELOAD_RESOURCES = 'hide_reload_resources',
     HIDE_EDIT_DASHBOARD = 'hide_edit_dashboard',
     ADD_CLOCK = 'add_clock',
+    AUTO_HIDE_OVERFLOW = 'auto_hide_overflow',
     BLOCK_MOUSE = 'block_mouse'
 }
 
@@ -88,7 +91,10 @@ export enum ELEMENT {
 
 export const TRUE = 'true';
 export const FALSE = 'false';
+export const BOOLEAN = 'boolean';
 export const CUSTOM_MOBILE_WIDTH_DEFAULT = 812;
 export const SUSCRIBE_EVENTS_TYPE = 'subscribe_events';
 export const STATE_CHANGED_EVENT = 'state_changed';
+export const MAX_ATTEMPTS = 500;
+export const RETRY_DELAY = 50;
 export const WINDOW_RESIZE_DELAY = 250;
